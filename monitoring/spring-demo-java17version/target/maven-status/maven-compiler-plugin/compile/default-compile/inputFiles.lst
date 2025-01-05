@@ -1,0 +1,13 @@
+C:\Users\Iulia\Desktop\AN4\SEM1\DS\Lab\laboratory1\monitoring\spring-demo-java17version\src\main\java\ro\tuc\ds2020\entities\HourlyConsumption.java
+C:\Users\Iulia\Desktop\AN4\SEM1\DS\Lab\laboratory1\monitoring\spring-demo-java17version\src\main\java\ro\tuc\ds2020\entities\Message.java
+C:\Users\Iulia\Desktop\AN4\SEM1\DS\Lab\laboratory1\monitoring\spring-demo-java17version\src\main\java\ro\tuc\ds2020\entities\DeviceInfo.java
+C:\Users\Iulia\Desktop\AN4\SEM1\DS\Lab\laboratory1\monitoring\spring-demo-java17version\src\main\java\ro\tuc\ds2020\repositories\DeviceSyncRepository.java
+C:\Users\Iulia\Desktop\AN4\SEM1\DS\Lab\laboratory1\monitoring\spring-demo-java17version\src\main\java\ro\tuc\ds2020\dtos\DeviceMessageDTO.java
+C:\Users\Iulia\Desktop\AN4\SEM1\DS\Lab\laboratory1\monitoring\spring-demo-java17version\src\main\java\ro\tuc\ds2020\DeviceApplication.java
+C:\Users\Iulia\Desktop\AN4\SEM1\DS\Lab\laboratory1\monitoring\spring-demo-java17version\src\main\java\ro\tuc\ds2020\config\RabbitMQConfig.java
+C:\Users\Iulia\Desktop\AN4\SEM1\DS\Lab\laboratory1\monitoring\spring-demo-java17version\src\main\java\ro\tuc\ds2020\repositories\HourlyConsumptionRepository.java
+C:\Users\Iulia\Desktop\AN4\SEM1\DS\Lab\laboratory1\monitoring\spring-demo-java17version\src\main\java\ro\tuc\ds2020\services\ConsumerMessage.java
+C:\Users\Iulia\Desktop\AN4\SEM1\DS\Lab\laboratory1\monitoring\spring-demo-java17version\src\main\java\ro\tuc\ds2020\services\HourlyConsumptionService.java
+C:\Users\Iulia\Desktop\AN4\SEM1\DS\Lab\laboratory1\monitoring\spring-demo-java17version\src\main\java\ro\tuc\ds2020\repositories\MessageRepository.java
+C:\Users\Iulia\Desktop\AN4\SEM1\DS\Lab\laboratory1\monitoring\spring-demo-java17version\src\main\java\ro\tuc\ds2020\services\DeviceMessageConsumer.java
+C:\Users\Iulia\Desktop\AN4\SEM1\DS\Lab\laboratory1\monitoring\spring-demo-java17version\src\main\java\ro\tuc\ds2020\services\DeviceSyncService.java

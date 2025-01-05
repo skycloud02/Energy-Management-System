@@ -1,0 +1,13 @@
+ro\tuc\ds2020\services\DeviceMessageConsumer.class
+ro\tuc\ds2020\entities\HourlyConsumption.class
+ro\tuc\ds2020\repositories\DeviceSyncRepository.class
+ro\tuc\ds2020\repositories\MessageRepository.class
+ro\tuc\ds2020\services\ConsumerMessage.class
+ro\tuc\ds2020\entities\DeviceInfo.class
+ro\tuc\ds2020\dtos\DeviceMessageDTO.class
+ro\tuc\ds2020\services\HourlyConsumptionService.class
+ro\tuc\ds2020\services\DeviceSyncService.class
+ro\tuc\ds2020\config\RabbitMQConfig.class
+ro\tuc\ds2020\DeviceApplication.class
+ro\tuc\ds2020\repositories\HourlyConsumptionRepository.class
+ro\tuc\ds2020\entities\Message.class

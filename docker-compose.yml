@@ -1,0 +1,159 @@
+#version: '3.8'
+#am revenit la docker-compose fara service health chestie ptc folosim wait-for-it
+
+services:
+
+  traefik:
+    image: traefik:v2.10
+    container_name: traefik
+    command:
+      - "-log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - app-network
+    #labels:
+      #- "traefik.http.middlewares.cors.headers.accesscontrolalloworigin=*"
+      #- "traefik.http.routers.backend-person.middlewares=cors@docker"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"       # Maps host port 3000 to container's port 80 (NGINX)
+    networks:
+      - app-network
+
+  backend-devices:
+    build:
+      context: ./backend-devices/spring-demo-java17version
+      dockerfile: Dockerfile
+    networks:
+      - app-network
+    depends_on:
+      - devices-db
+      - rabbitmq
+    environment:
+      - DB_IP=devices-db
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=Sebesel266@
+      - DB_DBNAME=devices-db
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - USER_URL=http://user.localhost
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend-devices.rule=Host(`device.localhost`)"
+      #- "traefik.http.services.backend-devices.loadbalancer.server.port=8081"
+
+  backend-person:
+    build:
+      context: ./backend-person/spring-demo-java17version
+      dockerfile: Dockerfile
+    networks:
+      - app-network
+    depends_on:
+      - city-db
+    environment:
+      - DB_IP=city-db
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=Sebesel266@
+      - DB_DBNAME=city-db
+      - DEVICE_URL=http://device.localhost
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend-person.rule=Host(`user.localhost`)"
+      #- "traefik.http.services.backend-person.loadbalancer.server.port=8082"
+      #- "traefik.http.middlewares.cors.headers.accesscontrolalloworigin=*"
+      #- "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=GET,POST,PUT,DELETE,OPTIONS"
+      #- "traefik.http.middlewares.cors.headers.accesscontrolallowheaders=Content-Type,Authorization"
+      #- "traefik.http.routers.backend-person.middlewares=cors@docker"
+      #- "traefik.http.routers.backend-person.entrypoints=web"
+
+  monitoring:
+    build:
+      context: ./monitoring/spring-demo-java17version
+      dockerfile: Dockerfile
+    networks:
+      - app-network
+    depends_on:
+      - monitoring-db
+      - rabbitmq
+    environment:
+      - DB_IP=monitoring-db
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=Sebesel266@
+      - DB_DBNAME=monitoring-db
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.monitoring.rule=Host(`monitoring.localhost`)"
+      #- "traefik.http.services.monitoring.loadbalancer.server.port=8083"
+
+  rabbitmq:
+    hostname: rabbitmq
+    image: rabbitmq:management
+    ports:
+      - "5672:5672"  # Default RabbitMQ port
+      - "15672:15672" # RabbitMQ Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - app-network
+
+  devices-db:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: Sebesel266@
+      MYSQL_DATABASE: devices-db
+    ports:
+      - "3037:3306"      # Maps host port 3037 to container's port 3306 (MySQL)
+    networks:
+      - app-network
+    volumes:
+      - devices-db-data:/var/lib/mysql
+
+  monitoring-db:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: Sebesel266@
+      MYSQL_DATABASE: monitoring-db
+    ports:
+      - "3039:3306"
+    networks:
+      - app-network
+    volumes:
+      - monitoring-db-data:/var/lib/mysql
+
+  city-db:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: Sebesel266@
+      MYSQL_DATABASE: city-db
+    ports:
+      - "3038:3306"      # Maps host port 3038 to container's port 3306 (MySQL)
+    networks:
+      - app-network
+    volumes:
+      - city-db-data:/var/lib/mysql
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  devices-db-data:
+  city-db-data:
+  monitoring-db-data:

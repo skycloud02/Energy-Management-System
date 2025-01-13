@@ -12,6 +12,7 @@ import org.springframework.web.client.RestTemplate;
 import ro.tuc.ds2020.controllers.handlers.exceptions.model.ResourceNotFoundException;
 import ro.tuc.ds2020.dtos.PersonDTO;
 import ro.tuc.ds2020.dtos.PersonDetailsDTO;
+import ro.tuc.ds2020.dtos.ReqRes;
 import ro.tuc.ds2020.dtos.builders.PersonBuilder;
 import ro.tuc.ds2020.entities.Person;
 import ro.tuc.ds2020.enums.UserRole;
@@ -29,15 +30,17 @@ public class PersonService {
     private final String secretKey = "mySecretKey";
     private final PasswordEncoder passwordEncoder;
     private final RestTemplate restTemplate;
+    private final JwtUtils jwtUtils;
 
     @Value("${device.service.url}")
     private String deviceServiceUrl;
 
     @Autowired
-    public PersonService(PersonRepository personRepository, PasswordEncoder passwordEncoder, RestTemplate restTemplate) {
+    public PersonService(PersonRepository personRepository, PasswordEncoder passwordEncoder, RestTemplate restTemplate, JwtUtils jwtUtils) {
         this.personRepository = personRepository;
         this.passwordEncoder = passwordEncoder;
         this.restTemplate = restTemplate;
+        this.jwtUtils = jwtUtils;
     }
 
     public List<PersonDTO> findPersons() {
@@ -54,13 +57,6 @@ public class PersonService {
             throw new ResourceNotFoundException(Person.class.getSimpleName() + " with id: " + id);
         }
         return PersonBuilder.toPersonDTO(prosumerOptional.get());
-    }
-
-    public UUID insert(PersonDetailsDTO personDTO) {
-        Person person = PersonBuilder.toEntity(personDTO);
-        person = personRepository.save(person);
-        LOGGER.debug("Person with id {} was inserted in db", person.getId());
-        return person.getId();
     }
 
     public UUID update(PersonDetailsDTO personDTO) {
@@ -101,7 +97,7 @@ public class PersonService {
     public void delete(UUID id) {
         try{
 			// in cadrul docker-compose nu il recunoaste ca localhost, trb container name
-            String deleteDevicesUrl = "http://backend-devices:8080/spring-demo/userDevice/deleteByUser/" + id;
+            String deleteDevicesUrl = "http://devices.localhost/spring-demo/userDevice/deleteByUser/" + id;
             restTemplate.delete(deleteDevicesUrl);
             restTemplate.delete(deleteDevicesUrl);
             LOGGER.info("Successfully deleted devices associated with userId {}", id);
@@ -112,6 +108,24 @@ public class PersonService {
             LOGGER.error("Person with id {} was not found in db", id);
             throw new ResourceNotFoundException(Person.class.getSimpleName() + " with id: " + id);
         }
+    }
+
+    public UUID insert(PersonDetailsDTO personDTO) {
+        personDTO.setPass(passwordEncoder.encode(personDTO.getPass()));
+        Person person = PersonBuilder.toEntity(personDTO);
+        person = personRepository.save(person);
+
+        UUID id = person.getId();
+
+        try{
+            // in cadrul docker-compose nu il recunoaste ca localhost, trb container name
+            restTemplate.postForEntity("http://backend-devices:8080/spring-demo/userDevice/addUser", id, UUID.class);
+            LOGGER.info("Successfully added userId {} to UserDevice in Device microservice", id);
+        } catch (Exception e) {
+            LOGGER.error("Failed to add userId {} to UserDevice table in Device microservice", id, e);
+        }
+
+        return id;
     }
 
     // Register new user
@@ -144,11 +158,12 @@ public class PersonService {
         throw new RuntimeException("Invalid credentials");
     }
 
-    public String loginId(String username, String password) {
+    public ReqRes loginId(String username, String password) {
         Optional<Person> personOptional = personRepository.findByUsername(username);
         if (personOptional.isPresent() && passwordEncoder.matches(password, personOptional.get().getPass())) {
             // Generate JWT
-            return personOptional.get().getId().toString();
+            String token = jwtUtils.generateToken(personOptional.get().getUsername(), personOptional.get().getUserRole().name());
+            return new ReqRes(token, personOptional.get().getId(), personOptional.get().getName(), personOptional.get().getUsername(), personOptional.get().getUserRole());
         }
         throw new RuntimeException("Invalid credentials");
     }

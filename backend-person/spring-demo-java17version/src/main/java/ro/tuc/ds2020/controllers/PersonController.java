@@ -9,6 +9,7 @@ import ro.tuc.ds2020.dtos.PersonDTO;
 import ro.tuc.ds2020.dtos.PersonDetailsDTO;
 //import ro.tuc.ds2020.entities.Person;
 //import ro.tuc.ds2020.services.AuthService;
+import ro.tuc.ds2020.dtos.ReqRes;
 import ro.tuc.ds2020.services.PersonService;
 
 import javax.validation.Valid;
@@ -82,14 +83,14 @@ public class PersonController {
     }
 
     @PostMapping("/loginId")
-    public ResponseEntity<String> loginId(@RequestBody Map<String, String> credentials) {
+    public ResponseEntity<ReqRes> loginId(@RequestBody Map<String, String> credentials) {
         String username = credentials.get("username");
         String password = credentials.get("pass");
         try {
-            String token = personService.loginId(username, password);
+            ReqRes token = personService.loginId(username, password);
             return new ResponseEntity<>(token, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>("Invalid credentials", HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
     }
 

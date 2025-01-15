@@ -101,6 +101,26 @@ services:
       - "traefik.http.routers.monitoring.rule=Host(`monitoring.localhost`)"
       #- "traefik.http.services.monitoring.loadbalancer.server.port=8083"
 
+  backend-chat:
+    build:
+      context: ./backend-chat/spring-demo-java17version
+      dockerfile: Dockerfile
+    networks:
+      - app-network
+    depends_on:
+      - chat-db
+    environment:
+        - DB_IP=chat-db
+        - DB_PORT=3306
+        - DB_USER=root
+        - DB_PASSWORD=Sebesel266@
+        - DB_DBNAME=chat-db
+        - DEVICE_URL=http://chat.localhost
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend-chat.rule=Host(`chat.localhost`)"
+      #- "traefik.http.services.backend-chat.loadbalancer.server.port=8084"
+
   rabbitmq:
     hostname: rabbitmq
     image: rabbitmq:management
@@ -149,6 +169,18 @@ services:
     volumes:
       - city-db-data:/var/lib/mysql
 
+  chat-db:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: Sebesel266@
+      MYSQL_DATABASE: chat-db
+    ports:
+      - "3036:3306"      # Maps host port 3036 to container's port 3306 (MySQL)
+    networks:
+      - app-network
+    volumes:
+      - chat-db-data:/var/lib/mysql
+
 networks:
   app-network:
     driver: bridge
@@ -157,3 +189,4 @@ volumes:
   devices-db-data:
   city-db-data:
   monitoring-db-data:
+  chat-db-data:

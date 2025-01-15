@@ -51,6 +51,7 @@ public class WebSecurityConfig {
                 }))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/person/register", "/person/*", "/person/loginId").permitAll()
+                        .requestMatchers("person/getAdmins").hasAuthority("PERSON")
                         .requestMatchers("/person/addPerson", "/person/update", "/person/getAll").hasAuthority("ADMIN")
                         .requestMatchers(new AntPathRequestMatcher("/person/delete/**")).hasAuthority("ADMIN")
                         .anyRequest().authenticated()

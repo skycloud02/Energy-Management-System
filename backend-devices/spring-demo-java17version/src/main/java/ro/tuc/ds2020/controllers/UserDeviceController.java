@@ -16,9 +16,10 @@ public class UserDeviceController {
     @Autowired
     private UserDeviceService userDeviceService;
 
-    @PostMapping("/addUser")
-    public ResponseEntity<UUID> addUserToUserDevice(@RequestBody UUID userId) {
-        UUID userDeviceId = userDeviceService.addUserToUserDevice(userId);
+    @PostMapping(value = "/addUser", consumes = "text/plain")
+    public ResponseEntity<UUID> addUserToUserDevice(@RequestBody String userId) {
+        UUID parsedUserId = UUID.fromString(userId); // Parse the string into a UUID
+        UUID userDeviceId = userDeviceService.addUserToUserDevice(parsedUserId);
         return new ResponseEntity<>(userDeviceId, HttpStatus.CREATED);
     }
 

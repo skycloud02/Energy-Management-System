@@ -50,6 +50,13 @@ public class PersonService {
                 .collect(Collectors.toList());
     }
 
+    public List<PersonDTO> findAdmins() {
+        List<Person> personList = personRepository.findByUserRole(UserRole.ADMIN);
+        return personList.stream()
+                .map(PersonBuilder::toPersonDTO)
+                .collect(Collectors.toList());
+    }
+
     public PersonDTO findPersonById(UUID id) {
         Optional<Person> prosumerOptional = personRepository.findById(id);
         if (!prosumerOptional.isPresent()) {
@@ -117,13 +124,13 @@ public class PersonService {
 
         UUID id = person.getId();
 
-        try{
-            // in cadrul docker-compose nu il recunoaste ca localhost, trb container name
-            restTemplate.postForEntity("http://backend-devices:8080/spring-demo/userDevice/addUser", id, UUID.class);
-            LOGGER.info("Successfully added userId {} to UserDevice in Device microservice", id);
-        } catch (Exception e) {
-            LOGGER.error("Failed to add userId {} to UserDevice table in Device microservice", id, e);
-        }
+//        try{
+//            // in cadrul docker-compose nu il recunoaste ca localhost, trb container name
+//            restTemplate.postForEntity("http://device.localhost/spring-demo/userDevice/addUser", id, UUID.class);
+//            LOGGER.info("Successfully added userId {} to UserDevice in Device microservice", id);
+//        } catch (Exception e) {
+//            LOGGER.error("Failed to add userId {} to UserDevice table in Device microservice", id, e);
+//        }
 
         return id;
     }

@@ -10,6 +10,7 @@
         <option value="$PROJECT_DIR$/producer/pom.xml" />
         <option value="$PROJECT_DIR$/monitoringV2/pom.xml" />
         <option value="$PROJECT_DIR$/monitoring/spring-demo-java17version/pom.xml" />
+        <option value="$PROJECT_DIR$/backend-chat/spring-demo-java17version/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

@@ -13,6 +13,7 @@ import ro.tuc.ds2020.dtos.ReqRes;
 import ro.tuc.ds2020.services.PersonService;
 
 import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -38,10 +39,18 @@ public class PersonController {
         return new ResponseEntity<>(dtos, HttpStatus.OK);
     }
 
+    @GetMapping(value = "/getAdmins")
+    public ResponseEntity<List<PersonDTO>> getAdmins() {
+        List<PersonDTO> dtos = personService.findAdmins();
+        return new ResponseEntity<>(dtos, HttpStatus.OK);
+    }
+
     @PostMapping(value = "/addPerson")
-    public ResponseEntity<UUID> insertProsumer(@Valid @RequestBody PersonDetailsDTO personDTO) {
+    public ResponseEntity<Map<String, UUID>> insertProsumer(@Valid @RequestBody PersonDetailsDTO personDTO) {
         UUID personID = personService.insert(personDTO);
-        return new ResponseEntity<>(personID, HttpStatus.CREATED);
+        Map<String, UUID> response = new HashMap<>();
+        response.put("id", personID);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @GetMapping(value = "/{id}")

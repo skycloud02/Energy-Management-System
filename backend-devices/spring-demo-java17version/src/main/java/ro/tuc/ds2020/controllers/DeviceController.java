@@ -11,6 +11,7 @@ import ro.tuc.ds2020.entities.Device;
 import ro.tuc.ds2020.rabbitmq.RabbitMQConfig;
 import ro.tuc.ds2020.rabbitmq.RabbitMQPublisher;
 import ro.tuc.ds2020.services.DeviceService;
+import ro.tuc.ds2020.services.JwtUtils;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -23,20 +24,22 @@ public class DeviceController {
 
     private final DeviceService deviceService;
     private final RabbitTemplate rabbitTemplate;
+    private JwtUtils jwtUtils;
 
     @Autowired
-    public DeviceController(DeviceService deviceService, RabbitTemplate rabbitTemplate) {
+    public DeviceController(DeviceService deviceService, RabbitTemplate rabbitTemplate, JwtUtils jwtUtils) {
         this.deviceService = deviceService;
         this.rabbitTemplate = rabbitTemplate;
+        this.jwtUtils = jwtUtils;
     }
 
-    @GetMapping()
+    @GetMapping(value = "/getAll")
     public ResponseEntity<List<DeviceDetailsDTO>> getDevices() {
         List<DeviceDetailsDTO> dtos = deviceService.findDevices();
         return new ResponseEntity<>(dtos, HttpStatus.OK);
     }
 
-    @PostMapping()
+    @PostMapping(value = "/addDevice")
     public ResponseEntity<UUID> insertDevice(@Valid @RequestBody DeviceDetailsDTO deviceDetailsDTO) {
         UUID deviceID = deviceService.insert(deviceDetailsDTO);
         //RabbitMQPublisher message = new RabbitMQPublisher(deviceID, deviceDetailsDTO.getName(), deviceDetailsDTO.getMaxEnergy(), deviceDetailsDTO.getUserId(), false);
@@ -50,7 +53,7 @@ public class DeviceController {
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 
-    @PutMapping()
+    @PutMapping(value = "/update")
     public ResponseEntity<UUID> updateDevice(@RequestBody DeviceDetailsDTO deviceDetailsDTO) {
         UUID deviceId = deviceService.update(deviceDetailsDTO);
         return new ResponseEntity<>(deviceId, HttpStatus.OK);
@@ -63,7 +66,12 @@ public class DeviceController {
     }
 
     @GetMapping("/getByUserId/{userId}")
-    public List<Device> getDevicesByUserId(@PathVariable UUID userId) {
+    public List<Device> getDevicesByUserId(@PathVariable UUID userId, @RequestHeader("Authorization") String token) {
+        String extractedUserId = jwtUtils.extractUserId(token); // Extract user ID from JWT
+        System.out.println("Extracted UserId: " + extractedUserId);
+        System.out.println("Requested UserId: " + userId);
+
         return deviceService.getDevicesByUserId(userId);
     }
+
 }
